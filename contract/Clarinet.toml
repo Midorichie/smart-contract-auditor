@@ -7,6 +7,14 @@ requirements = []
 
 [contracts.auditor]
 path = "contracts/auditor.clar"
+depends_on = ["security-utils"]
+
+[contracts.vulnerability-scanner]
+path = "contracts/vulnerability-scanner.clar"
+depends_on = ["auditor", "security-utils"]
+
+[contracts.security-utils]
+path = "contracts/security-utils.clar"
 depends_on = []
 
 [contracts.example-contract]
@@ -21,7 +29,7 @@ parser_version = 2
 passes = ["check_checker"]
 
 [repl.analysis.check_checker]
-strict = false
+strict = true
 trusted_sender = false
 trusted_caller = false
 callee_filter = false
