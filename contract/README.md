@@ -1,18 +1,23 @@
 # Clarity Smart Contract Auditor
 
-An AI-powered tool that automatically detects vulnerabilities in Clarity smart contracts on the Stacks blockchain.
+An AI-powered tool that automatically detects vulnerabilities in Clarity smart contracts on the Stacks blockchain. This project now includes multiple specialized modules that provide comprehensive scanning, utility functions for security analysis, and full auditing capabilities.
 
 ## Overview
 
-This project implements an automated auditing system for Clarity smart contracts. It scans contract code for common security vulnerabilities and best practice violations, providing developers with early feedback to improve contract security before deployment.
+This project implements an automated auditing system for Clarity smart contracts. It not only scans contract code for common vulnerabilities and best practice violations, but also registers custom vulnerability patterns and tracks detailed audit histories. The system is built as a set of interrelated modules:
+  
+- **Vulnerability Scanner:** Registers and tracks vulnerability patterns and scan histories, and performs automated scanning of contracts.
+- **Security Utilities:** Offers utility functions for string matching and vulnerability detection, along with common vulnerability patterns (e.g., reentrancy, authorization issues) and mitigation recommendations.
+- **Auditor Module:** Orchestrates contract audits, registers vulnerability patterns specific to auditing, and maintains detailed audit results with scoring and timestamps.
 
 ## Features
 
-- Vulnerability pattern registry for common Clarity contract issues
-- Contract scanning and analysis
-- Security scoring system
-- Detailed vulnerability reports
-- Support for custom detection patterns
+- **Vulnerability Pattern Registry:** Easily register and manage known vulnerability patterns with custom detection logic.
+- **Contract Scanning:** Execute scans on deployed contracts with automated vulnerability detection and scan history tracking.
+- **Security Utilities:** Provides helper functions for detecting common code issues, calculating security scores, and more.
+- **Detailed Audit Reports:** Retrieves audit results that include vulnerability listings, security scores, and timestamps.
+- **Modular Architecture:** Separate contracts for vulnerability scanning, security utilities, and auditing for clearer logic and easier maintenance.
+- **Custom Pattern Support:** Developers can define and register new vulnerability patterns and scanning logic as needed.
 
 ## Prerequisites
 
@@ -23,18 +28,18 @@ Before you begin, ensure you have the following installed:
 
 ## Project Setup
 
-1. Clone the repository:
+1. **Clone the repository:**
    ```bash
    git clone https://github.com/midorichie/clarity-smart-contract-auditor.git
    cd clarity-smart-contract-auditor
    ```
 
-2. Install dependencies:
+2. **Install dependencies:**
    ```bash
    npm install
    ```
 
-3. Initialize the Clarinet environment:
+3. **Initialize the Clarinet environment:**
    ```bash
    clarinet integrate
    ```
@@ -43,81 +48,108 @@ Before you begin, ensure you have the following installed:
 
 ```
 clarity-smart-contract-auditor/
-├── contracts/               # Clarity smart contracts
-│   ├── auditor.clar         # Main auditor contract
-│   └── examples/            # Example contracts for testing
-├── tests/                   # Test files
-├── settings/                # Clarinet settings
-├── analysis/                # AI analysis components
-│   ├── patterns/            # Vulnerability patterns
-│   └── detection.js         # Detection algorithms
-└── frontend/                # UI components (if applicable)
+├── contracts/                    # Clarity smart contracts
+│   ├── auditor.clar              # Main auditor and vulnerability registration contract
+│   ├── vulnerability-scanner.clar# Implements contract scanning and vulnerability pattern registration
+│   └── security-utils.clar       # Provides utility functions and common security patterns 
+├── tests/                        # Test files to validate contract behavior
+├── settings/                     # Clarinet configuration settings
+├── analysis/                     # AI analysis components
+│   ├── patterns/                 # Vulnerability patterns for automated scanning
+│   └── detection.js              # Detection algorithms for assessing smart contract security
+└── frontend/                     # UI components (if applicable)
 ```
 
 ## Running the Project
 
-1. Start the Clarinet console:
+1. **Start the Clarinet console:**
    ```bash
    clarinet console
    ```
 
-2. In the console, you can interact with the contract:
-   ```clarity
-   (contract-call? .auditor audit-contract 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract)
-   ```
+2. **Interact with the contracts:**  
+   - **Scanning a Contract:**  
+     ```clarity
+     (contract-call? .vulnerability-scanner scan-for-vulnerabilities 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract)
+     ```
+   - **Auditing a Contract:**  
+     ```clarity
+     (contract-call? .auditor audit-contract 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract)
+     ```
 
 ## Testing
 
 Run the test suite with:
-
 ```bash
 clarinet test
 ```
 
 ## Common Vulnerability Patterns
 
-The auditor checks for common vulnerabilities including:
+The auditor and scanner check for several common issues, including:
 
-1. Reentrancy attacks
-2. Unchecked contract calls
-3. Improper use of `unwrap!` or `unwrap-panic`
-4. Missing authorization checks
-5. Integer overflow/underflow
-6. Unrestricted `as-contract` usage
-7. Unbounded loops
-8. Excessive contract size
-9. Inefficient data structures
-10. Improper error handling
+- Reentrancy attacks
+- Unchecked contract calls and improper use of `unwrap!`
+- Missing or weak authorization checks
+- Integer overflow/underflow risks
+- Unrestricted `as-contract` usage
+- Unbounded loops or inefficient data structures
+- Inadequate error handling
 
-## Using the Auditor
+These patterns can be extended by registering new vulnerability definitions using the provided functions in both the vulnerability scanner and auditor modules.
 
-1. Register vulnerability patterns (admin only):
-   ```clarity
-   (contract-call? .auditor register-vulnerability u1 "reentrancy" "Contract allows reentrant function calls" u9 "(unwrap! (as-contract...))")
-   ```
+## Using the Modules
 
-2. Audit a contract:
-   ```clarity
-   (contract-call? .auditor audit-contract 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract)
-   ```
+### Vulnerability Scanner
 
-3. View audit results:
-   ```clarity
-   (contract-call? .auditor get-audit-result 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract)
-   ```
+- **Register a New Pattern (Admin Only):**
+  ```clarity
+  (contract-call? .vulnerability-scanner register-pattern u10 "pattern-code" "detection-logic" u5)
+  ```
+- **Scan a Contract:**
+  ```clarity
+  (contract-call? .vulnerability-scanner scan-for-vulnerabilities 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract)
+  ```
+- **Retrieve Scan Results:**
+  ```clarity
+  (contract-call? .vulnerability-scanner get-scan-result 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract u0)
+  ```
+
+### Security Utilities
+
+Utilize helper functions from the security utilities module to check for:
+
+- Reentrancy issues using a basic parenthesis check.
+- Authorization issues via custom string matching functions.
+- The calculation of a security score based on identified issues.
+
+### Auditor Module
+
+- **Register a Vulnerability Pattern:**
+  ```clarity
+  (contract-call? .auditor register-vulnerability u1 "reentrancy" "Contract allows reentrant function calls" u9 "(unwrap! (as-contract ...))")
+  ```
+- **Audit a Contract:**
+  ```clarity
+  (contract-call? .auditor audit-contract 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract)
+  ```
+- **Retrieve Audit Results:**
+  ```clarity
+  (contract-call? .auditor get-audit-result 'SP2PABAF9FTAJYNFZH93XENAJ8FVY99RRM50D2JG9.example-contract u0)
+  ```
 
 ## Future Enhancements
 
-- Machine learning model for improved detection accuracy
-- Integration with CI/CD pipelines
-- Support for automated fix suggestions
-- Web interface for easier interaction
-- Historical vulnerability tracking
+- Integration with machine learning models for improved vulnerability detection accuracy.
+- Enhanced CI/CD integration for continuous security monitoring.
+- Automated fix suggestions based on audit outcomes.
+- A dedicated web interface for simplified interaction with the auditing system.
+- Expanded historical vulnerability tracking.
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please feel free to submit a Pull Request with improvements or bug fixes.
 
 ## License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License – see the [LICENSE](LICENSE) file for details.
